@@ -30,8 +30,8 @@ export default function TransactionModal({ isOpen, onClose, products, onTransact
   };
 
   return (
-    <div style={backdropStyle}>
-      <div style={modalCardStyle}>
+    <div className="modal-overlay">
+      <div className="modal-card">
         <h3 style={{ marginTop: 0 }}>Record Stock Movement</h3>
         {error && <p style={{ color: '#dc2626', fontSize: '14px' }}>{error}</p>}
         <form onSubmit={handleSubmit}>
@@ -39,7 +39,7 @@ export default function TransactionModal({ isOpen, onClose, products, onTransact
             value={form.productId}
             onChange={(e) => setForm({ ...form, productId: e.target.value })}
             required
-            style={inputStyle}
+            className="modal-input"
           >
             <option value="">-- Select Product --</option>
             {products.map((p) => (
@@ -52,7 +52,7 @@ export default function TransactionModal({ isOpen, onClose, products, onTransact
           <select
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
-            style={inputStyle}
+            className="modal-input"
           >
             <option value="INWARD">Inward (Add to Stock)</option>
             <option value="OUTWARD">Outward (Dispatch / Consume)</option>
@@ -65,24 +65,24 @@ export default function TransactionModal({ isOpen, onClose, products, onTransact
             onChange={(e) => setForm({ ...form, quantity: e.target.value })}
             required
             min="1"
-            style={inputStyle}
+            className="modal-input"
           />
           <input
             type="date"
             value={form.billDate}
             onChange={(e) => setForm({ ...form, billDate: e.target.value })}
-            style={inputStyle}
+            className="modal-input"
           />
           <input
             type="date"
             value={form.deliveryDate}
             onChange={(e) => setForm({ ...form, deliveryDate: e.target.value })}
-            style={inputStyle}
+            className="modal-input"
           />
 
-          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+          <div className="modal-actions">
             <button type="submit" style={btnPrimary}>Submit Transaction</button>
-            <button type="button" onClick={onClose} style={btnSecondary}>Cancel</button>
+            <button type="button" onClick={onClose} className="modal-secondary">Cancel</button>
           </div>
         </form>
       </div>
@@ -90,11 +90,4 @@ export default function TransactionModal({ isOpen, onClose, products, onTransact
   );
 }
 
-const backdropStyle = {
-  position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-  backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-};
-const modalCardStyle = { backgroundColor: '#fff', padding: '24px', borderRadius: '8px', width: '380px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' };
-const inputStyle = { width: '100%', padding: '10px', margin: '6px 0', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' };
 const btnPrimary = { flex: 1, background: '#16a34a', color: '#fff', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' };
-const btnSecondary = { flex: 1, background: '#e5e7eb', color: '#374151', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer' };

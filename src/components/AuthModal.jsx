@@ -32,63 +32,55 @@ export default function AuthModal({ onLoginSuccess }) {
   };
 
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <h2 style={{ textAlign: 'center', margin: '0 0 8px' }}>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2>
           {isRegister ? 'Staff Registration' : 'IntelliStock Login'}
         </h2>
-        <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '14px', margin: '0 0 20px' }}>
+        <p className="auth-subtitle">
           {isRegister ? 'Create an account to manage stock transactions' : 'Enter your credentials to continue'}
         </p>
 
-        {error && <div style={errorStyle}>{error}</div>}
+        {error && <div className="auth-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '12px' }}>
-            <label style={labelStyle}>Username</label>
+            <label className="form-label">Username</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Username"
               required
-              style={inputStyle}
+              className="form-input"
             />
           </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <label style={labelStyle}>Password</label>
+            <label className="form-label">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               required
-              style={inputStyle}
+              className="form-input"
             />
           </div>
 
-          <button type="submit" disabled={loading} style={primaryBtn}>
+          <button type="submit" disabled={loading} className="primary-button">
             {loading ? 'Authenticating...' : isRegister ? 'Register as Staff' : 'Sign In'}
           </button>
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '16px', fontSize: '14px' }}>
           {isRegister ? (
-            <span>Already have an account? <button type="button" onClick={() => { setIsRegister(false); setError(null); }} style={linkBtn}>Log In</button></span>
+            <span className="auth-footer">Already have an account? <button type="button" onClick={() => { setIsRegister(false); setError(null); }} className="link-button">Log In</button></span>
           ) : (
-            <span>New staff member? <button type="button" onClick={() => { setIsRegister(true); setError(null); }} style={linkBtn}>Register here</button></span>
+            <span className="auth-footer">New staff member? <button type="button" onClick={() => { setIsRegister(true); setError(null); }} className="link-button">Register here</button></span>
           )}
         </div>
       </div>
     </div>
   );
 }
-
-const containerStyle = { minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const cardStyle = { width: '380px', padding: '32px', border: '1px solid #e5e7eb', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', backgroundColor: '#fff' };
-const labelStyle = { display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', color: '#374151' };
-const inputStyle = { width: '100%', padding: '10px', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' };
-const primaryBtn = { width: '100%', padding: '10px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' };
-const linkBtn = { background: 'none', border: 'none', color: '#2563eb', fontWeight: 'bold', cursor: 'pointer', padding: 0 };
-const errorStyle = { backgroundColor: '#fee2e2', color: '#b91c1c', padding: '10px', borderRadius: '4px', marginBottom: '12px', fontSize: '13px' };

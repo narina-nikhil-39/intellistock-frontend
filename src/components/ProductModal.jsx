@@ -29,8 +29,8 @@ export default function ProductModal({ isOpen, onClose, onProductCreated }) {
   };
 
   return (
-    <div style={backdropStyle}>
-      <div style={modalCardStyle}>
+    <div className="modal-overlay">
+      <div className="modal-card">
         <h3 style={{ marginTop: 0 }}>Add New Product</h3>
         {error && <p style={{ color: '#dc2626', fontSize: '14px' }}>{error}</p>}
         <form onSubmit={handleSubmit}>
@@ -39,20 +39,20 @@ export default function ProductModal({ isOpen, onClose, onProductCreated }) {
             value={form.sku}
             onChange={(e) => setForm({ ...form, sku: e.target.value })}
             required
-            style={inputStyle}
+            className="modal-input"
           />
           <input
             placeholder="Product Name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
-            style={inputStyle}
+            className="modal-input"
           />
           <input
             placeholder="Category"
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
-            style={inputStyle}
+            className="modal-input"
           />
           <input
             type="number"
@@ -61,7 +61,7 @@ export default function ProductModal({ isOpen, onClose, onProductCreated }) {
             onChange={(e) => setForm({ ...form, initialStock: e.target.value })}
             required
             min="0"
-            style={inputStyle}
+            className="modal-input"
           />
           <input
             type="number"
@@ -70,11 +70,11 @@ export default function ProductModal({ isOpen, onClose, onProductCreated }) {
             onChange={(e) => setForm({ ...form, safetyStockLevel: e.target.value })}
             required
             min="0"
-            style={inputStyle}
+            className="modal-input"
           />
-          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+          <div className="modal-actions">
             <button type="submit" style={btnPrimary}>Save Product</button>
-            <button type="button" onClick={onClose} style={btnSecondary}>Cancel</button>
+            <button type="button" onClick={onClose} className="modal-secondary">Cancel</button>
           </div>
         </form>
       </div>
@@ -82,11 +82,4 @@ export default function ProductModal({ isOpen, onClose, onProductCreated }) {
   );
 }
 
-const backdropStyle = {
-  position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-  backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-};
-const modalCardStyle = { backgroundColor: '#fff', padding: '24px', borderRadius: '8px', width: '380px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' };
-const inputStyle = { width: '100%', padding: '10px', margin: '6px 0', border: '1px solid #d1d5db', borderRadius: '4px', boxSizing: 'border-box' };
 const btnPrimary = { flex: 1, background: '#2563eb', color: '#fff', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' };
-const btnSecondary = { flex: 1, background: '#e5e7eb', color: '#374151', border: 'none', padding: '10px', borderRadius: '4px', cursor: 'pointer' };

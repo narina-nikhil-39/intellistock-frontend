@@ -11,9 +11,11 @@ import ProductModal from './components/ProductModal';
 import TransactionModal from './components/TransactionModal';
 import AuthModal from './components/AuthModal';
 import AdminCreateModal from './components/AdminCreateModal';
+import './App.css';
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem('intellistock-theme') === 'dark' ? 'dark' : 'light');
   const [products, setProducts] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [isProductModalOpen, setProductModalOpen] = useState(false);
@@ -58,6 +60,12 @@ export default function App() {
     setUser(null);
   };
 
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('intellistock-theme', nextTheme);
+    setTheme(nextTheme);
+  };
+
   const handleCreateProduct = async (data) => {
     await createProduct(data);
     refreshData();
@@ -91,46 +99,54 @@ export default function App() {
   };
 
   if (!user) {
-    return <AuthModal onLoginSuccess={checkUserSession} />;
+    return (
+      <div className="app-shell" data-theme={theme}>
+        <ThemeToggle theme={theme} onToggle={toggleTheme} floating />
+        <AuthModal onLoginSuccess={checkUserSession} />
+      </div>
+    );
   }
 
   const isAdmin = user.role === 'ROLE_ADMIN';
 
   return (
-    <div style={{ padding: '32px', fontFamily: 'system-ui, sans-serif', maxWidth: '1150px', margin: '0 auto', color: '#111827' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+    <div className="app-shell" data-theme={theme}>
+      <div className="app-content">
+      <header className="app-header">
         <div>
-          <h1 style={{ margin: 0, fontSize: '28px' }}>IntelliStock</h1>
-          <p style={{ margin: '4px 0 0', color: '#6b7280' }}>
-            User: <strong>{user.username}</strong> | Access Level: <strong style={{ color: isAdmin ? '#2563eb' : '#059669' }}>{isAdmin ? 'ADMINISTRATOR' : 'STAFF'}</strong>
+          <h1 className="app-title">IntelliStock</h1>
+          <p className="user-summary">
+            User: <strong>{user.username}</strong> | Access Level: <strong className={isAdmin ? 'role-admin' : 'role-staff'}>{isAdmin ? 'ADMINISTRATOR' : 'STAFF'}</strong>
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="header-actions">
           {isAdmin && (
             <>
-              <button onClick={() => setProductModalOpen(true)} style={actionBtn('#2563eb')}>
+              <button onClick={() => setProductModalOpen(true)} className="action-btn action-btn--secondary">
                 + Add Product
               </button>
-              <button onClick={() => setAdminModalOpen(true)} style={actionBtn('#4f46e5')}>
+              <button onClick={() => setAdminModalOpen(true)} className="action-btn action-btn--secondary">
                 + Add Admin
               </button>
             </>
           )}
-          <button onClick={() => setTxModalOpen(true)} style={actionBtn('#16a34a')}>
+          <button onClick={() => setTxModalOpen(true)} className="action-btn action-btn--primary">
             + Record Movement
           </button>
-          <button onClick={handleLogout} style={actionBtn('#6b7280')}>
+          <button onClick={handleLogout} className="action-btn action-btn--ghost">
             Logout
           </button>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
         </div>
       </header>
 
       {/* Stock Monitor Table */}
-      <div style={cardStyle}>
-        <h3 style={{ margin: '0 0 16px' }}>Current Inventory Status</h3>
-        <table style={tableStyle}>
+      <div className="inventory-card">
+        <h3>Current Inventory Status</h3>
+        <div className="table-scroll">
+        <table className="inventory-table">
           <thead>
-            <tr style={{ background: '#f9fafb', textAlign: 'left', borderBottom: '2px solid #e5e7eb' }}>
+            <tr>
               <th style={cellStyle}>SKU</th>
               <th style={cellStyle}>Name</th>
               <th style={cellStyle}>Category</th>
@@ -142,10 +158,10 @@ export default function App() {
           </thead>
           <tbody>
             {products.length === 0 ? (
-              <tr><td colSpan={isAdmin ? "7" : "6"} style={{ textAlign: 'center', padding: '24px', color: '#9ca3af' }}>No products recorded.</td></tr>
+              <tr><td colSpan={isAdmin ? "7" : "6"} className="empty-state">No products recorded.</td></tr>
             ) : (
               products.map((p) => (
-                <tr key={p.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                <tr key={p.id}>
                   <td style={cellStyle}><code>{p.sku}</code></td>
                   <td style={cellStyle}>{p.name}</td>
                   <td style={cellStyle}>
@@ -189,14 +205,16 @@ export default function App() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Transaction Ledger Table */}
-      <div style={cardStyle}>
-        <h3 style={{ margin: '0 0 16px' }}>Transaction Ledger</h3>
-        <table style={tableStyle}>
+      <div className="inventory-card">
+        <h3>Transaction Ledger</h3>
+        <div className="table-scroll">
+        <table className="inventory-table">
           <thead>
-            <tr style={{ background: '#f9fafb', textAlign: 'left', borderBottom: '2px solid #e5e7eb' }}>
+            <tr>
               <th style={cellStyle}>ID</th>
               <th style={cellStyle}>Product</th>
               <th style={cellStyle}>Type</th>
@@ -206,10 +224,10 @@ export default function App() {
           </thead>
           <tbody>
             {transactions.length === 0 ? (
-              <tr><td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: '#9ca3af' }}>No transaction history found.</td></tr>
+              <tr><td colSpan="5" className="empty-state">No transaction history found.</td></tr>
             ) : (
               transactions.map((tx) => (
-                <tr key={tx.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                <tr key={tx.id}>
                   <td style={cellStyle}>#{tx.id}</td>
                   <td style={cellStyle}>{tx.productName} ({tx.productSku})</td>
                   <td style={cellStyle}>
@@ -222,7 +240,7 @@ export default function App() {
                     {tx.isAnomaly ? (
                       <span style={badgeStyle('#fef08a', '#854d0e')}>🚨 Unusual Spike</span>
                     ) : (
-                      <span style={{ color: '#6b7280', fontSize: '13px' }}>Verified</span>
+                      <span className="status-verified">Verified</span>
                     )}
                   </td>
                 </tr>
@@ -230,6 +248,7 @@ export default function App() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       <ProductModal
@@ -247,12 +266,26 @@ export default function App() {
         isOpen={isAdminModalOpen}
         onClose={() => setAdminModalOpen(false)}
       />
+      </div>
     </div>
   );
 }
 
-const cardStyle = { backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px', marginBottom: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' };
-const tableStyle = { width: '100%', borderCollapse: 'collapse' };
+function ThemeToggle({ theme, onToggle, floating = false }) {
+  const nextTheme = theme === 'light' ? 'dark' : 'light';
+  return (
+    <button
+      type="button"
+      className={`theme-toggle${floating ? ' theme-toggle--floating' : ''}`}
+      onClick={onToggle}
+      aria-label={`Switch to ${nextTheme} mode`}
+      aria-pressed={theme === 'dark'}
+      title={`Switch to ${nextTheme} mode`}
+    >
+      {theme === 'light' ? '☾' : '☀'} {theme === 'light' ? 'Dark mode' : 'Light mode'}
+    </button>
+  );
+}
+
 const cellStyle = { padding: '12px 14px' };
-const actionBtn = (bg) => ({ background: bg, color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' });
 const badgeStyle = (bg, color) => ({ backgroundColor: bg, color: color, padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: '600' });
