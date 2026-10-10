@@ -184,7 +184,12 @@ export default function App() {
                   <td style={cellStyle}>{p.safetyStockLevel}</td>
                   <td style={cellStyle}>
                     {p.isReorderRecommended ? (
-                      <span style={badgeStyle('#fee2e2', '#b91c1c')}>⚠️ Reorder Needed</span>
+                      <div>
+                        <span style={badgeStyle('#fee2e2', '#b91c1c')}>⚠️ Low Stock</span>
+                        <div style={{ fontSize: '11px', color: '#b91c1c', marginTop: '4px', fontWeight: 'bold' }}>
+                          Order +{p.recommendedReorderQuantity ?? 0} units
+                        </div>
+                      </div>
                     ) : (
                       <span style={badgeStyle('#dcfce7', '#15803d')}>Optimal</span>
                     )}

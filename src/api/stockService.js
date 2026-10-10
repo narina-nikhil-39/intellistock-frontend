@@ -1,6 +1,7 @@
 import apiClient from './client';
 
 export const getProducts = () => apiClient.get('/products');
+export const getLowStockProducts = () => apiClient.get('/products/low-stock');
 export const createProduct = (productData) => apiClient.post('/products', productData);
 export const markProductEOL = (id) => apiClient.patch(`/products/${id}/eol`);
 export const deleteProduct = (id) => apiClient.delete(`/products/${id}`);
