@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 
 export default function TransactionModal({ isOpen, onClose, products, onTransactionRecorded }) {
-  const [form, setForm] = useState({
-    productId: '',
-    type: 'INWARD',
-    quantity: '',
-    billDate: new Date().toISOString().split('T')[0],
-    deliveryDate: new Date().toISOString().split('T')[0],
+  const [form, setForm] = useState(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return {
+      productId: '',
+      type: 'INWARD',
+      quantity: '',
+      billDate: today,
+      deliveryDate: today,
+    };
   });
   const [error, setError] = useState(null);
 

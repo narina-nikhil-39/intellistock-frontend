@@ -19,11 +19,11 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Axios Response Interceptor: Handle 401/403 expired sessions
+// Only authentication failures end the session; authorization failures are handled by the caller.
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.dispatchEvent(new Event('auth-changed'));

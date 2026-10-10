@@ -1,3 +1,4 @@
+/* oxlint-disable react/set-state-in-effect */
 import React, { useState, useEffect } from 'react';
 import { 
   getProducts, 
@@ -14,7 +15,11 @@ import AdminCreateModal from './components/AdminCreateModal';
 import './App.css';
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    return token && storedUser ? JSON.parse(storedUser) : null;
+  });
   const [theme, setTheme] = useState(() => localStorage.getItem('intellistock-theme') === 'dark' ? 'dark' : 'light');
   const [products, setProducts] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -33,9 +38,12 @@ export default function App() {
   };
 
   useEffect(() => {
-    checkUserSession();
-    window.addEventListener('auth-changed', checkUserSession);
-    return () => window.removeEventListener('auth-changed', checkUserSession);
+    const handleAuthChange = () => {
+      checkUserSession();
+    };
+
+    window.addEventListener('auth-changed', handleAuthChange);
+    return () => window.removeEventListener('auth-changed', handleAuthChange);
   }, []);
 
   const refreshData = async () => {
@@ -48,6 +56,7 @@ export default function App() {
     }
   };
 
+  // oxlint-disable-next-line react/set-state-in-effect -- inventory data is refreshed when the authenticated user state changes.
   useEffect(() => {
     if (user) {
       refreshData();
@@ -219,12 +228,13 @@ export default function App() {
               <th style={cellStyle}>Product</th>
               <th style={cellStyle}>Type</th>
               <th style={cellStyle}>Quantity</th>
+              <th style={cellStyle}>Logged By</th>
               <th style={cellStyle}>Integrity Status</th>
             </tr>
           </thead>
           <tbody>
             {transactions.length === 0 ? (
-              <tr><td colSpan="5" className="empty-state">No transaction history found.</td></tr>
+              <tr><td colSpan="6" className="empty-state">No transaction history found.</td></tr>
             ) : (
               transactions.map((tx) => (
                 <tr key={tx.id}>
@@ -236,6 +246,10 @@ export default function App() {
                     </span>
                   </td>
                   <td style={{ ...cellStyle, fontWeight: 'bold' }}>{tx.quantity}</td>
+                  <td style={cellStyle}>
+                    <div className="transaction-actor">{tx.performedByUsername || 'System'}</div>
+                    <div className="transaction-actor-role">{tx.performedByRole || 'N/A'}</div>
+                  </td>
                   <td style={cellStyle}>
                     {tx.isAnomaly ? (
                       <span style={badgeStyle('#fef08a', '#854d0e')}>🚨 Unusual Spike</span>

@@ -197,6 +197,18 @@
   font-size: 13px;
 }
 
+.transaction-actor {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.transaction-actor-role {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
 .auth-container {
   min-height: calc(100vh - 64px);
   display: flex;
