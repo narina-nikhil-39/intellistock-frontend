@@ -8,3 +8,6 @@ export const deleteProduct = (id) => apiClient.delete(`/products/${id}`);
 
 export const getTransactions = () => apiClient.get('/transactions');
 export const recordTransaction = (transactionData) => apiClient.post('/transactions', transactionData);
+
+export const getDemandForecasts = () => apiClient.get('/forecast');
+export const getProductForecast = (productId) => apiClient.get(`/forecast/product/${productId}`);

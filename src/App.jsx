@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   getProducts, 
   getTransactions, 
+  getDemandForecasts,
   createProduct, 
   markProductEOL, 
   deleteProduct, 
@@ -12,6 +13,7 @@ import ProductModal from './components/ProductModal';
 import TransactionModal from './components/TransactionModal';
 import AuthModal from './components/AuthModal';
 import AdminCreateModal from './components/AdminCreateModal';
+import AIPredictivePanel from './components/AIPredictivePanel';
 import './App.css';
 
 export default function App() {
@@ -23,6 +25,7 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('intellistock-theme') === 'dark' ? 'dark' : 'light');
   const [products, setProducts] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [forecasts, setForecasts] = useState([]);
   const [isProductModalOpen, setProductModalOpen] = useState(false);
   const [isTxModalOpen, setTxModalOpen] = useState(false);
   const [isAdminModalOpen, setAdminModalOpen] = useState(false);
@@ -48,9 +51,14 @@ export default function App() {
 
   const refreshData = async () => {
     try {
-      const [prodRes, txRes] = await Promise.all([getProducts(), getTransactions()]);
+      const [prodRes, txRes, forecastRes] = await Promise.all([
+        getProducts(),
+        getTransactions(),
+        getDemandForecasts(),
+      ]);
       setProducts(prodRes.data);
       setTransactions(txRes.data);
+      setForecasts(forecastRes.data || []);
     } catch (err) {
       console.error('Error fetching inventory data:', err);
     }
@@ -107,6 +115,31 @@ export default function App() {
     refreshData();
   };
 
+  const handleQuickRestock = (payload) => {
+    const selectedProduct = products.find((product) => product.id === payload.id);
+    if (!selectedProduct) {
+      return;
+    }
+
+    setTxModalOpen(true);
+    setTimeout(() => {
+      const modal = document.querySelector('.modal-card');
+      if (!modal) return;
+
+      const productField = modal.querySelector('select');
+      const quantityField = Array.from(modal.querySelectorAll('input')).find((input) => input.type === 'number');
+
+      if (productField) {
+        productField.value = String(selectedProduct.id);
+        productField.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (quantityField) {
+        quantityField.value = String(payload.recommendedReorderQuantity || 1);
+        quantityField.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }, 0);
+  };
+
   if (!user) {
     return (
       <div className="app-shell" data-theme={theme}>
@@ -148,6 +181,8 @@ export default function App() {
           <ThemeToggle theme={theme} onToggle={toggleTheme} />
         </div>
       </header>
+
+      <AIPredictivePanel forecasts={forecasts} onQuickRestock={handleQuickRestock} />
 
       {/* Stock Monitor Table */}
       <div className="inventory-card">
