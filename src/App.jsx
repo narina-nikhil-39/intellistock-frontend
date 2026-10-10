@@ -14,6 +14,7 @@ import TransactionModal from './components/TransactionModal';
 import AuthModal from './components/AuthModal';
 import AdminCreateModal from './components/AdminCreateModal';
 import AIPredictivePanel from './components/AIPredictivePanel';
+import AnalyticsDashboard from './components/AnalyticsDashboard';
 import './App.css';
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
   const [isProductModalOpen, setProductModalOpen] = useState(false);
   const [isTxModalOpen, setTxModalOpen] = useState(false);
   const [isAdminModalOpen, setAdminModalOpen] = useState(false);
+  const [currentView, setCurrentView] = useState('OPERATIONS');
 
   const checkUserSession = () => {
     const token = localStorage.getItem('token');
@@ -182,128 +184,165 @@ export default function App() {
         </div>
       </header>
 
-      <AIPredictivePanel forecasts={forecasts} onQuickRestock={handleQuickRestock} />
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+        <button
+          onClick={() => setCurrentView('OPERATIONS')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '6px',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: '600',
+            backgroundColor: currentView === 'OPERATIONS' ? '#2563eb' : '#f1f5f9',
+            color: currentView === 'OPERATIONS' ? '#ffffff' : '#475569'
+          }}
+        >
+          📋 Inventory Operations
+        </button>
+        <button
+          onClick={() => setCurrentView('ANALYTICS')}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '6px',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: '600',
+            backgroundColor: currentView === 'ANALYTICS' ? '#2563eb' : '#f1f5f9',
+            color: currentView === 'ANALYTICS' ? '#ffffff' : '#475569'
+          }}
+        >
+          📊 Visual Analytics & Reports
+        </button>
+      </div>
 
-      {/* Stock Monitor Table */}
-      <div className="inventory-card">
-        <h3>Current Inventory Status</h3>
-        <div className="table-scroll">
-        <table className="inventory-table">
-          <thead>
-            <tr>
-              <th style={cellStyle}>SKU</th>
-              <th style={cellStyle}>Name</th>
-              <th style={cellStyle}>Category</th>
-              <th style={cellStyle}>Current Stock</th>
-              <th style={cellStyle}>Safety Level</th>
-              <th style={cellStyle}>Status</th>
-              {isAdmin && <th style={cellStyle}>Admin Controls</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {products.length === 0 ? (
-              <tr><td colSpan={isAdmin ? "7" : "6"} className="empty-state">No products recorded.</td></tr>
-            ) : (
-              products.map((p) => (
-                <tr key={p.id}>
-                  <td style={cellStyle}><code>{p.sku}</code></td>
-                  <td style={cellStyle}>{p.name}</td>
-                  <td style={cellStyle}>
-                    {p.category === 'End of Life' ? (
-                      <span style={badgeStyle('#fef3c7', '#b45309')}>End of Life</span>
-                    ) : (
-                      p.category || '-'
-                    )}
-                  </td>
-                  <td style={{ ...cellStyle, fontWeight: 'bold' }}>{p.currentStock}</td>
-                  <td style={cellStyle}>{p.safetyStockLevel}</td>
-                  <td style={cellStyle}>
-                    {p.isReorderRecommended ? (
-                      <div>
-                        <span style={badgeStyle('#fee2e2', '#b91c1c')}>⚠️ Low Stock</span>
-                        <div style={{ fontSize: '11px', color: '#b91c1c', marginTop: '4px', fontWeight: 'bold' }}>
-                          Order +{p.recommendedReorderQuantity ?? 0} units
-                        </div>
-                      </div>
-                    ) : (
-                      <span style={badgeStyle('#dcfce7', '#15803d')}>Optimal</span>
-                    )}
-                  </td>
-                  {isAdmin && (
-                    <td style={cellStyle}>
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        {p.category !== 'End of Life' && (
-                          <button
-                            onClick={() => handleMarkEOL(p.id)}
-                            style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                          >
-                            Mark EOL
-                          </button>
+      {currentView === 'ANALYTICS' ? (
+        <AnalyticsDashboard products={products} transactions={transactions} />
+      ) : (
+        <>
+          <AIPredictivePanel forecasts={forecasts} onQuickRestock={handleQuickRestock} />
+
+          {/* Stock Monitor Table */}
+          <div className="inventory-card">
+            <h3>Current Inventory Status</h3>
+            <div className="table-scroll">
+            <table className="inventory-table">
+              <thead>
+                <tr>
+                  <th style={cellStyle}>SKU</th>
+                  <th style={cellStyle}>Name</th>
+                  <th style={cellStyle}>Category</th>
+                  <th style={cellStyle}>Current Stock</th>
+                  <th style={cellStyle}>Safety Level</th>
+                  <th style={cellStyle}>Status</th>
+                  {isAdmin && <th style={cellStyle}>Admin Controls</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {products.length === 0 ? (
+                  <tr><td colSpan={isAdmin ? "7" : "6"} className="empty-state">No products recorded.</td></tr>
+                ) : (
+                  products.map((p) => (
+                    <tr key={p.id}>
+                      <td style={cellStyle}><code>{p.sku}</code></td>
+                      <td style={cellStyle}>{p.name}</td>
+                      <td style={cellStyle}>
+                        {p.category === 'End of Life' ? (
+                          <span style={badgeStyle('#fef3c7', '#b45309')}>End of Life</span>
+                        ) : (
+                          p.category || '-'
                         )}
-                        <button
-                          onClick={() => handleDeleteProduct(p.id)}
-                          style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        </div>
-      </div>
+                      </td>
+                      <td style={{ ...cellStyle, fontWeight: 'bold' }}>{p.currentStock}</td>
+                      <td style={cellStyle}>{p.safetyStockLevel}</td>
+                      <td style={cellStyle}>
+                        {p.isReorderRecommended ? (
+                          <div>
+                            <span style={badgeStyle('#fee2e2', '#b91c1c')}>⚠️ Low Stock</span>
+                            <div style={{ fontSize: '11px', color: '#b91c1c', marginTop: '4px', fontWeight: 'bold' }}>
+                              Order +{p.recommendedReorderQuantity ?? 0} units
+                            </div>
+                          </div>
+                        ) : (
+                          <span style={badgeStyle('#dcfce7', '#15803d')}>Optimal</span>
+                        )}
+                      </td>
+                      {isAdmin && (
+                        <td style={cellStyle}>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            {p.category !== 'End of Life' && (
+                              <button
+                                onClick={() => handleMarkEOL(p.id)}
+                                style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                              >
+                                Mark EOL
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteProduct(p.id)}
+                              style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            </div>
+          </div>
 
-      {/* Transaction Ledger Table */}
-      <div className="inventory-card">
-        <h3>Transaction Ledger</h3>
-        <div className="table-scroll">
-        <table className="inventory-table">
-          <thead>
-            <tr>
-              <th style={cellStyle}>ID</th>
-              <th style={cellStyle}>Product</th>
-              <th style={cellStyle}>Type</th>
-              <th style={cellStyle}>Quantity</th>
-              <th style={cellStyle}>Logged By</th>
-              <th style={cellStyle}>Integrity Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.length === 0 ? (
-              <tr><td colSpan="6" className="empty-state">No transaction history found.</td></tr>
-            ) : (
-              transactions.map((tx) => (
-                <tr key={tx.id}>
-                  <td style={cellStyle}>#{tx.id}</td>
-                  <td style={cellStyle}>{tx.productName} ({tx.productSku})</td>
-                  <td style={cellStyle}>
-                    <span style={badgeStyle(tx.type === 'INWARD' ? '#dbeafe' : '#ffedd5', tx.type === 'INWARD' ? '#1e40af' : '#9a3412')}>
-                      {tx.type}
-                    </span>
-                  </td>
-                  <td style={{ ...cellStyle, fontWeight: 'bold' }}>{tx.quantity}</td>
-                  <td style={cellStyle}>
-                    <div className="transaction-actor">{tx.performedByUsername || 'System'}</div>
-                    <div className="transaction-actor-role">{tx.performedByRole || 'N/A'}</div>
-                  </td>
-                  <td style={cellStyle}>
-                    {tx.isAnomaly ? (
-                      <span style={badgeStyle('#fef08a', '#854d0e')}>🚨 Unusual Spike</span>
-                    ) : (
-                      <span className="status-verified">Verified</span>
-                    )}
-                  </td>
+          {/* Transaction Ledger Table */}
+          <div className="inventory-card">
+            <h3>Transaction Ledger</h3>
+            <div className="table-scroll">
+            <table className="inventory-table">
+              <thead>
+                <tr>
+                  <th style={cellStyle}>ID</th>
+                  <th style={cellStyle}>Product</th>
+                  <th style={cellStyle}>Type</th>
+                  <th style={cellStyle}>Quantity</th>
+                  <th style={cellStyle}>Logged By</th>
+                  <th style={cellStyle}>Integrity Status</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        </div>
-      </div>
+              </thead>
+              <tbody>
+                {transactions.length === 0 ? (
+                  <tr><td colSpan="6" className="empty-state">No transaction history found.</td></tr>
+                ) : (
+                  transactions.map((tx) => (
+                    <tr key={tx.id}>
+                      <td style={cellStyle}>#{tx.id}</td>
+                      <td style={cellStyle}>{tx.productName} ({tx.productSku})</td>
+                      <td style={cellStyle}>
+                        <span style={badgeStyle(tx.type === 'INWARD' ? '#dbeafe' : '#ffedd5', tx.type === 'INWARD' ? '#1e40af' : '#9a3412')}>
+                          {tx.type}
+                        </span>
+                      </td>
+                      <td style={{ ...cellStyle, fontWeight: 'bold' }}>{tx.quantity}</td>
+                      <td style={cellStyle}>
+                        <div className="transaction-actor">{tx.performedByUsername || 'System'}</div>
+                        <div className="transaction-actor-role">{tx.performedByRole || 'N/A'}</div>
+                      </td>
+                      <td style={cellStyle}>
+                        {tx.isAnomaly ? (
+                          <span style={badgeStyle('#fef08a', '#854d0e')}>🚨 Unusual Spike</span>
+                        ) : (
+                          <span className="status-verified">Verified</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </>
+      )}
 
       <ProductModal
         isOpen={isProductModalOpen}
